@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f9edf0" />
+  <meta name="description" content="Một món quà nhỏ gửi đến những người phụ nữ tuyệt vời nhân ngày Phụ nữ Việt Nam 20/10." />
+  <title>Gửi người phụ nữ tuyệt vời | 20/10 🌹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap&subset=vietnamese" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #54283a;
+      --muted: #8e6977;
+      --rose: #d9547e;
+      --rose-dark: #a9335b;
+      --rose-light: #f6b6cb;
+      --cream: #fff9f8;
+      --page: #fff6f7;
+      --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+      --shadow: 0 25px 90px rgba(112, 40, 68, .12);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; overflow-x: clip; }
+    body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); overflow-x: hidden; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    ::selection { background: #f4adc5; color: #6e1f3c; }
+    :focus-visible { outline: 3px solid #d85683; outline-offset: 4px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    #petal-canvas { position: fixed; inset: 0; z-index: 25; width: 100%; height: 100%; pointer-events: none; }
+    .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, #ffafca, #bb3d68, #ffcfdf); z-index: 100; box-shadow: 0 0 15px #df7696; }
+    .scroll-lock { overflow: hidden; }
+
+    /* Reusable typography and buttons */
+    .eyebrow { margin: 0 0 25px; font-size: 11px; font-weight: 700; line-height: 1.7; letter-spacing: .27em; text-transform: uppercase; color: #bc5a7b; }
+    .eyebrow::before { content: ''; display: inline-block; vertical-align: middle; width: 26px; height: 1px; margin-right: 12px; background: currentColor; }
+    .serif { font-family: var(--serif); }
+    .emphasis { color: var(--rose-dark); font-style: italic; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 13px; min-height: 55px; padding: 15px 26px; border: 1px solid transparent; border-radius: 100px; background: var(--rose-dark); color: white; font-size: 12px; font-weight: 700; letter-spacing: .055em; box-shadow: 0 12px 32px rgba(162, 48, 88, .19); cursor: pointer; transition: transform .3s, background .3s, box-shadow .3s; }
+    .button:hover { transform: translateY(-3px); background: #8e284e; box-shadow: 0 16px 42px rgba(162, 48, 88, .28); }
+    .button--light { color: #9c3154; background: #fff9fa; box-shadow: 0 15px 35px rgba(44, 7, 24, .17); }
+    .button--light:hover { background: #fff; }
+    .button svg { width: 17px; height: 17px; transition: transform .3s; }
+    .button:hover svg { transform: translateX(3px); }
+    .section-wrap { width: min(1160px, calc(100% - 64px)); margin: 0 auto; }
+    .section-heading { font-family: var(--serif); font-weight: 500; font-size: clamp(37px, 4.4vw, 65px); line-height: 1.2; letter-spacing: -.048em; margin: 0; }
+    .body-copy { font-size: 15px; color: var(--muted); line-height: 2.05; }
+    [data-reveal] { opacity: 0; transform: translateY(34px); transition: opacity .85s ease, transform .85s cubic-bezier(.22,.65,.24,1); }
+    [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+    [data-reveal="delay-1"] { transition-delay: .11s; }
+    [data-reveal="delay-2"] { transition-delay: .22s; }
+    [data-reveal="delay-3"] { transition-delay: .33s; }
+
+    /* Navbar */
+    .site-nav { position: absolute; top: 0; left: 0; width: 100%; z-index: 20; }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; width: min(1310px, calc(100% - 88px)); height: 93px; margin: auto; }
+    .brand { display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-style: italic; font-size: 21px; font-weight: 600; color: #8f3655; }
+    .brand-mark { display: grid; place-items: center; height: 38px; width: 38px; border-radius: 50%; background: rgba(255,255,255,.7); border: 1px solid rgba(202,103,136,.18); box-shadow: 0 6px 25px #b67e921e; }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .nav-right { display: flex; align-items: center; gap: 38px; }
+    .nav-links { display: flex; align-items: center; gap: 32px; font-size: 12px; font-weight: 600; color: #8c6775; }
+    .nav-links a { transition: color .2s; }
+    .nav-links a:hover { color: var(--rose-dark); }
+    .nav-date { padding: 12px 19px; border-radius: 40px; border: 1px solid #ecc3d0; background: rgba(255,255,255,.5); font-size: 11px; color: var(--rose-dark); letter-spacing: .075em; font-weight: 700; }
+
+    /* Hero */
+    .hero { min-height: max(775px, 100svh); position: relative; display: flex; align-items: center; isolation: isolate; overflow: hidden; background: radial-gradient(ellipse at 83% 46%, #f6cfdb 0%, #fce6eb 35%, transparent 66%), radial-gradient(ellipse at 5% 0%, #fffefd, #fff9f8 51%, #fff2f3 100%); }
+    .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(rgba(173,83,112,.17) .65px, transparent .65px); background-size: 27px 27px; mask-image: linear-gradient(90deg, transparent 0%, transparent 49%, #000 100%); opacity: .26; }
+    .hero-circle { position: absolute; width: 730px; height: 730px; right: -110px; top: 47%; transform: translateY(-50%); border-radius: 50%; border: 1px solid rgba(255,255,255,.74); box-shadow: inset 0 0 0 45px #ffffff13, inset 0 0 0 46px #ffffff45, inset 0 0 0 120px #ffffff08; }
+    .hero-circle::after { content: ''; position: absolute; inset: 72px; border-radius: 50%; border: 1px solid rgba(255,255,255,.65); }
+    .hero-inner { position: relative; width: min(1310px, calc(100% - 88px)); margin: 95px auto 55px; display: grid; grid-template-columns: 53% 47%; align-items: center; }
+    .hero-content { z-index: 2; padding: 0 0 20px 15px; }
+    .hero-overline { display: flex; gap: 13px; align-items: center; margin-bottom: 29px; color: #ad4b6b; text-transform: uppercase; letter-spacing: .22em; font-size: 11px; font-weight: 700; }
+    .hero-overline i { width: 34px; height: 1px; background: #c66c89; }
+    .hero h1 { font: 500 clamp(63px, 7.05vw, 111px)/1.13 var(--serif); letter-spacing: -.069em; margin: 0; max-width: 800px; }
+    .hero h1 .hero-small { display: block; font-size: .62em; letter-spacing: -.045em; margin-bottom: 8px; }
+    .hero h1 .hero-pink { display: block; color: #bf4e74; font-style: italic; font-weight: 500; }
+    .hero-desc { font-size: 15px; line-height: 2.05; color: #876676; max-width: 485px; margin: 32px 0 30px; }
+    .hero-actions { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .hero-note { font-family: var(--serif); color: #b16a81; font-style: italic; font-size: 17px; }
+    .hero-illustration { width: 100%; position: relative; height: min(720px, 67vw); min-height: 550px; display: flex; align-items: center; justify-content: center; transition: transform .25s ease-out; }
+    .hero-flower-halo { position: absolute; width: 90%; height: 83%; left: 6%; top: 9%; border-radius: 51% 49% 47% 53%; background: radial-gradient(ellipse at 47% 50%, rgba(255,255,255,.9), rgba(255,245,249,.38) 53%, transparent 71%); filter: blur(5px); }
+    .hero-bouquet { position: relative; z-index: 2; width: min(100%, 625px); height: 100%; filter: drop-shadow(0 24px 21px rgba(150, 62, 89, .12)); animation: bouquetFloat 7s ease-in-out infinite; }
+    .hero-bouquet use { transform-box: fill-box; transform-origin: center bottom; }
+    .hero-art-label { position: absolute; z-index: 4; left: -9%; bottom: 16%; display: flex; align-items: center; gap: 12px; padding: 14px 18px; border: 1px solid rgba(255,255,255,.94); border-radius: 9px; background: rgba(255,255,255,.66); box-shadow: 0 15px 40px #a84b6b18; backdrop-filter: blur(9px); color: #a35672; font: italic 17px var(--serif); transform: rotate(-6deg); }
+    .hero-art-label::before { content: '✦'; font: normal 17px var(--sans); color: #ca7c9a; }
+    .hero-seal { position: absolute; top: 12%; right: 0%; width: 117px; height: 117px; display: grid; place-items: center; border: 1px solid #ca8da48a; border-radius: 50%; color: #a04766; transform: rotate(13deg); }
+    .hero-seal::before { content: ''; position: absolute; inset: 7px; border: 1px dashed #d5a3b5; border-radius: 50%; }
+    .hero-seal strong { position: relative; font: 500 29px var(--serif); line-height: 1; }
+    .hero-seal span { display: block; text-align: center; margin-top: 4px; font-size: 8px; letter-spacing: .13em; text-transform: uppercase; }
+    .hero-sparkle { position: absolute; z-index: 4; color: #fff; font-size: 36px; text-shadow: 0 0 19px #f3a0ba; animation: shimmer 3s ease-in-out infinite; }
+    .hero-sparkle--one { left: 14%; top: 20%; }
+    .hero-sparkle--two { right: 4%; bottom: 23%; font-size: 19px; animation-delay: 1.4s; }
+    .hero-scroll { position: absolute; z-index: 4; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 11px; text-transform: uppercase; letter-spacing: .25em; font-size: 9px; font-weight: 700; color: #ab7687; }
+    .hero-scroll-line { height: 40px; width: 1px; background: linear-gradient(#d06d90, transparent); animation: scrollLine 2s infinite; }
+    @keyframes bouquetFloat { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-16px) rotate(1deg); } }
+    @keyframes shimmer { 0%,100% { opacity: .3; transform: scale(.7) rotate(0deg); } 50% { opacity: 1; transform: scale(1.15) rotate(35deg); } }
+    @keyframes scrollLine { 0%,100% { transform: scaleY(.5); transform-origin: top; opacity:.4; } 50% { transform: scaleY(1); opacity:1; } }
+
+    /* Marquee */
+    .marquee { overflow: hidden; height: 79px; display: flex; align-items: center; background: #a73d62; color: #fff9fa; transform: rotate(-1.2deg) scale(1.025); position: relative; z-index: 2; box-shadow: 0 10px 30px #ae608024; }
+    .marquee-track { display: flex; align-items: center; white-space: nowrap; width: max-content; animation: moveMarquee 35s linear infinite; }
+    .marquee-content { display: flex; align-items: center; gap: 40px; margin-right: 40px; font: italic 25px var(--serif); letter-spacing: .02em; }
+    .marquee-content b { font-family: var(--sans); font-size: 14px; font-weight: 400; color: #ffd5e3; }
+    @keyframes moveMarquee { to { transform: translateX(-50%); } }
+
+    /* Intro */
+    .intro { padding: 177px 0 145px; background: linear-gradient(180deg, #fffaf9, #fff7f7); }
+    .intro-grid { display: grid; grid-template-columns: .88fr 1.12fr; align-items: center; gap: 105px; }
+    .intro-art { position: relative; min-height: 515px; display: grid; place-items: center; }
+    .intro-art::before { content: ''; position: absolute; width: min(100%, 460px); aspect-ratio: 1; border-radius: 52% 48% 51% 49%; background: #fae5e9; transform: rotate(16deg); }
+    .intro-art::after { content: ''; position: absolute; width: 92%; height: 92%; border: 1px solid #e4b8c7; border-radius: 50%; opacity: .66; transform: rotate(-16deg) scale(.96, .87); }
+    .intro-rose { position: relative; z-index: 2; width: min(84%, 365px); max-height: 475px; filter: drop-shadow(0 22px 20px rgba(131,46,76,.13)); transform: rotate(-9deg); animation: bouquetFloat 8.5s ease-in-out infinite reverse; }
+    .intro-art-tag { position: absolute; z-index: 3; left: 7%; top: 16%; color: #be6585; font: italic 27px var(--serif); transform: rotate(-13deg); }
+    .intro-art-tag span { display: block; font: 500 11px var(--sans); letter-spacing: .25em; text-transform: uppercase; margin-top: 8px; }
+    .intro-copy .section-heading { margin-bottom: 27px; }
+    .intro-copy .body-copy { max-width: 520px; margin: 0 0 20px; }
+    .intro-quote { position: relative; margin-top: 42px; padding-left: 25px; border-left: 2px solid #d77a9a; font: italic 25px/1.55 var(--serif); color: #a64b6d; }
+    .intro-quote::before { content: '“'; position: absolute; font: 80px var(--serif); top: -47px; left: 20px; color: #e6a8bc; opacity: .27; }
+
+    /* Wish cards */
+    .wishes { padding: 125px 0 155px; background: #faeef1; overflow: hidden; }
+    .wishes-head { text-align: center; margin: 0 auto 68px; max-width: 740px; }
+    .wishes-head .eyebrow::before { display: none; }
+    .wishes-head .body-copy { max-width: 535px; margin: 23px auto 0; }
+    .wish-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .wish-card { min-height: 367px; padding: 34px 33px 31px; border: 1px solid #f4dade; border-radius: 14px; background: rgba(255,255,255,.78); box-shadow: 0 13px 35px rgba(170, 85, 119, .047); position: relative; overflow: hidden; transition: transform .35s, box-shadow .35s, background .35s; }
+    .wish-card:hover { transform: translateY(-11px) !important; box-shadow: 0 22px 60px #a9476d21; background: #fffdfd; }
+    .wish-card::after { content: attr(data-number); position: absolute; right: -15px; top: -27px; font: 170px var(--serif); color: #e6b4c5; opacity: .17; pointer-events: none; }
+    .wish-icon { display: grid; place-items: center; width: 64px; height: 64px; margin-bottom: 52px; border-radius: 50%; background: #fae8ed; color: #b84b70; }
+    .wish-icon svg { width: 30px; height: 30px; stroke-width: 1.5; }
+    .wish-card h3 { margin: 0 0 15px; font: 500 29px var(--serif); letter-spacing: -.035em; }
+    .wish-card p { max-width: 278px; margin: 0; color: #92717c; font-size: 13px; line-height: 1.95; }
+    .wish-card .tiny-bloom { position: absolute; right: 23px; bottom: 24px; font-size: 24px; color: #ed9db8; }
+
+    /* Letter */
+    .letter-section { padding: 145px 0 160px; background: #fffaf9; overflow: hidden; }
+    .letter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 75px; align-items: center; }
+    .letter-copy .section-heading { max-width: 485px; }
+    .letter-copy .body-copy { max-width: 480px; margin: 25px 0 29px; }
+    .letter-hint { margin-top: 27px; color: #b7778d; font: italic 17px var(--serif); }
+    .letter-hint span { display: inline-block; margin-right: 7px; animation: pointRight 1.6s ease-in-out infinite; }
+    @keyframes pointRight { 0%,100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
+    .letter-stage { position: relative; display: grid; place-items: end center; min-height: 565px; perspective: 1200px; cursor: pointer; }
+    .letter-stage::before { content: ''; position: absolute; width: 520px; max-width: 100%; aspect-ratio: 1; bottom: 0; border-radius: 50%; background: radial-gradient(circle, #fce5eb 0, #fcebf0 49%, transparent 70%); }
+    .envelope { position: relative; width: min(420px, 100%); height: 267px; margin-bottom: 80px; filter: drop-shadow(0 26px 31px rgba(152, 57, 85, .19)); transform: rotate(-5deg); transition: transform .8s; }
+    .letter-stage:hover .envelope { transform: rotate(-2deg) translateY(-5px); }
+    .envelope-back { position: absolute; inset: 0; z-index: 1; background: #eab0c2; border-radius: 9px; box-shadow: inset 0 0 25px #c66c8b2a; }
+    .letter-sheet { position: absolute; left: 6%; bottom: 12%; width: 88%; min-height: 301px; z-index: 2; background: #fffefd; border-radius: 7px; padding: 25px 24px 23px; text-align: center; box-shadow: 0 -3px 15px #b7587821; transition: transform 1s cubic-bezier(.2,.7,.1,1), box-shadow 1s; overflow: hidden; }
+    .letter-sheet::before { content: ''; position: absolute; inset: 12px; border: 1px solid #f0d8df; border-radius: 4px; pointer-events:none; }
+    .letter-sheet .mini-date { position: relative; margin: 12px 0 12px; font-size: 10px; letter-spacing: .18em; font-weight: 700; color: #c57992; }
+    .letter-sheet h3 { position: relative; margin: 0 0 11px; font: italic 24px var(--serif); color: #ad446b; }
+    .letter-sheet p { position: relative; margin: 0 auto 12px; font: 12px/1.85 var(--sans); color: #876b77; max-width: 315px; }
+    .letter-sheet .letter-sign { font: italic 15px var(--serif); color: #af4b6e; }
+    .envelope-front { position: absolute; inset: 0; z-index: 4; background: linear-gradient(150deg, #f9cddd 0%, #efb9cb 54%, #e8a7bd 100%); clip-path: polygon(0 0, 50% 59%, 100% 0, 100% 100%, 0 100%); border-radius: 0 0 8px 8px; }
+    .envelope-front::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 100%; background: linear-gradient(33deg,#ebacc1 0%,transparent 50%), linear-gradient(-33deg,#f6ccda 0%,transparent 50%); clip-path: polygon(0 100%, 50% 37%, 100% 100%); }
+    .envelope-flap { position: absolute; top: 0; left: 0; z-index: 5; width: 100%; height: 62%; background: linear-gradient(165deg,#ffdce7,#f4c2d1); clip-path: polygon(0 0, 100% 0, 50% 96%); transform-origin: top center; transition: transform .85s ease, z-index .1s; }
+    .wax-seal { position: absolute; z-index: 6; top: 47%; left: 50%; width: 65px; height: 65px; display: grid; place-items: center; transform: translate(-50%,-30%); border-radius: 50%; background: radial-gradient(circle at 30% 25%, #e982a2, #bb3b67 75%); border: 4px double #f7b6cb; box-shadow: 0 6px 14px #8e2c4b4c; color: #fff4f6; font: italic 27px var(--serif); transition: opacity .4s, transform .5s; }
+    .letter-stage.is-open .envelope { transform: rotate(0deg) translateY(20px); }
+    .letter-stage.is-open .envelope-flap { transform: rotateX(180deg); z-index: 1; }
+    .letter-stage.is-open .letter-sheet { transform: translateY(-180px) scale(1.065); box-shadow: 0 -15px 40px #bd668125; }
+    .letter-stage.is-open .wax-seal { opacity: 0; transform: translate(-50%,-60%) scale(.5); }
+    .letter-stage.is-open .envelope-front { z-index: 3; }
+    .letter-rose { position: absolute; font-size: 30px; color: #d57797; z-index: 7; bottom: 42px; right: 12%; animation: shimmer 4s infinite; }
+
+    /* Closing */
+    .finale { position: relative; overflow: hidden; min-height: 665px; background: radial-gradient(ellipse at 80% 80%, #bc5277 0%, transparent 55%), radial-gradient(ellipse at 15% 15%, #b64b72, #8e2b50 75%); color: #fff9fb; display: flex; align-items: center; text-align: center; }
+    .finale::after { content: ''; position: absolute; inset: 23px; border: 1px solid rgba(255,255,255,.23); pointer-events: none; }
+    .finale .section-wrap { position: relative; z-index: 3; padding: 105px 0; }
+    .finale .eyebrow { color: #ffd6e2; }
+    .finale .eyebrow::before { display: none; }
+    .finale h2 { font: 500 clamp(44px, 6vw, 83px)/1.19 var(--serif); letter-spacing: -.053em; margin: 0 auto 26px; max-width: 920px; }
+    .finale h2 em { color: #ffd1e0; }
+    .finale p { max-width: 560px; margin: 0 auto 30px; font-size: 15px; line-height: 2.05; color: #ffe8ee; }
+    .finale-ornament { width: 60px; height: 1px; margin: 0 auto 30px; background: #e9a9c0; }
+    .finale-rose { position: absolute; height: 400px; opacity: .16; filter: grayscale(.3) brightness(1.4); pointer-events:none; }
+    .finale-rose--left { bottom: -180px; left: -70px; transform: rotate(-30deg); }
+    .finale-rose--right { top: -130px; right: -90px; transform: rotate(145deg); }
+    .end-icon { font: 26px var(--serif); margin: 0 auto 20px; }
+    .foot { display: flex; justify-content: space-between; align-items: center; gap: 25px; padding: 27px max(calc((100vw - 1160px)/2), 32px); color: #a46d81; background: #fff8f9; font-size: 11px; letter-spacing: .055em; }
+    .foot strong { font: italic 18px var(--serif); color: #a64a6a; }
+    .foot a:hover { color: var(--rose-dark); }
+    .floaty { position: absolute; border-radius: 50%; pointer-events:none; }
+    .floaty--a { top: 18%; left: 5%; width: 8px; height: 8px; background: #ffdfeb; opacity: .65; animation: shimmer 4s infinite; }
+    .floaty--b { top: 45%; right: 8%; width: 5px; height: 5px; background: #ffb2ca; animation: shimmer 3s 1s infinite; }
+    .floaty--c { bottom: 15%; left: 23%; width: 9px; height: 9px; background: #ffe5ed; animation: shimmer 5s 2s infinite; }
+    .toast { position: fixed; z-index: 99; left: 50%; bottom: 32px; transform: translate(-50%, 20px); padding: 13px 19px; background: rgba(116, 35, 64, .9); color: white; border: 1px solid #ffffff4a; border-radius: 100px; box-shadow: 0 15px 35px #57223733; font-size: 12px; opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s; backdrop-filter: blur(12px); text-align: center; min-width: 225px; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 1100px) {
+      .hero h1 { font-size: clamp(58px,7vw,83px); }
+      .hero-art-label { left: -1%; }
+      .hero-seal { right: -6%; }
+      .intro-grid { gap: 55px; }
+      .letter-grid { gap: 40px; }
+    }
+    @media (max-width: 760px) {
+      .section-wrap { width: min(100% - 42px, 560px); }
+      .site-nav .nav-inner { width: calc(100% - 42px); height: 76px; }
+      .nav-links { display: none; }
+      .nav-right { gap: 0; }
+      .brand { font-size: 18px; }
+      .brand-mark { width: 35px; height: 35px; }
+      .nav-date { font-size: 10px; padding: 10px 13px; }
+      .hero { min-height: 860px; height: auto; padding-bottom: 60px; }
+      .hero-inner { width: calc(100% - 42px); margin: 127px auto 30px; display: flex; flex-direction: column; }
+      .hero-content { width: 100%; padding: 0; text-align: center; }
+      .hero-overline { justify-content: center; font-size: 10px; margin-bottom: 18px; }
+      .hero h1 { font-size: clamp(49px, 11vw, 73px); }
+      .hero-desc { margin: 22px auto 24px; font-size: 13px; max-width: 470px; }
+      .hero-actions { justify-content: center; gap: 15px; }
+      .hero-note { font-size: 15px; }
+      .hero-circle { top: 70%; right: 50%; transform: translate(50%,-50%); width: 520px; height: 520px; }
+      .hero-illustration { min-height: 0; height: 380px; max-width: 470px; margin: 2px auto 0; }
+      .hero-bouquet { width: 390px; max-width: 100%; }
+      .hero-seal { right: 3%; top: 3%; height: 79px; width: 79px; }
+      .hero-seal strong { font-size: 23px; }
+      .hero-seal span { font-size: 6px; }
+      .hero-art-label { font-size: 13px; padding: 10px 13px; bottom: 15%; left: 0; }
+      .hero-sparkle--one { left: 10%; top: 13%; }
+      .hero-scroll { bottom: 14px; }
+      .marquee { height: 65px; }
+      .marquee-content { font-size: 20px; gap: 27px; margin-right: 27px; }
+      .intro { padding: 90px 0 92px; }
+      .intro-grid { display: flex; flex-direction: column; gap: 42px; }
+      .intro-art { order: 2; min-height: 370px; width: 100%; max-width: 440px; }
+      .intro-rose { max-height: 350px; }
+      .intro-art-tag { font-size: 23px; }
+      .intro-copy { order: 1; }
+      .section-heading { font-size: clamp(35px, 8vw, 49px); }
+      .body-copy { font-size: 14px; }
+      .intro-quote { margin-top: 31px; font-size: 22px; }
+      .wishes { padding: 83px 0 95px; }
+      .wishes-head { margin-bottom: 42px; }
+      .wish-cards { grid-template-columns: 1fr; max-width: 460px; margin: 0 auto; gap: 17px; }
+      .wish-card { min-height: 260px; padding: 30px; }
+      .wish-icon { margin-bottom: 24px; width: 53px; height: 53px; }
+      .wish-card h3 { font-size: 27px; }
+      .wish-card p { max-width: 100%; }
+      .letter-section { padding: 93px 0 105px; }
+      .letter-grid { grid-template-columns: 1fr; gap: 15px; }
+      .letter-hint { display: none; }
+      .letter-stage { min-height: 535px; }
+      .envelope { width: min(380px, 91%); height: 241px; }
+      .letter-sheet { min-height: 270px; padding: 19px 15px 14px; }
+      .letter-sheet h3 { font-size: 21px; }
+      .letter-sheet p { font-size: 11px; line-height: 1.75; }
+      .finale { min-height: 650px; }
+      .finale::after { inset: 13px; }
+      .finale h2 { font-size: clamp(43px, 10vw, 65px); }
+      .finale p { font-size: 13px; }
+      .finale-rose { height: 300px; }
+      .foot { flex-direction: column; gap: 11px; text-align: center; padding: 24px 20px; }
+    }
+    @media (max-width: 390px) {
+      .hero { min-height: 820px; }
+      .hero h1 { font-size: 47px; }
+      .hero-desc { font-size: 12px; }
+      .hero-note { display: none; }
+      .hero-illustration { height: 350px; }
+      .letter-stage { min-height: 505px; }
+      .letter-sheet p { font-size: 10.4px; }
+      .envelope { margin-bottom: 75px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      [data-reveal] { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- All flowers are original inline SVG: no external image files needed. -->
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <radialGradient id="petalPink" cx="39%" cy="29%" r="75%"><stop offset="0%" stop-color="#ffe6ee"/><stop offset="38%" stop-color="#f7a6c0"/><stop offset="83%" stop-color="#d95a87"/><stop offset="100%" stop-color="#b83462"/></radialGradient>
+      <linearGradient id="petalDeep" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffcede"/><stop offset="50%" stop-color="#ed82a5"/><stop offset="100%" stop-color="#b83a69"/></linearGradient>
+      <radialGradient id="petalSoft" cx="52%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffeaf0"/><stop offset="60%" stop-color="#f4a2bb"/><stop offset="100%" stop-color="#dc658b"/></radialGradient>
+      <linearGradient id="leafGreen" x1="0" x2="1" y1="0" y2=".8"><stop offset="0%" stop-color="#93a78a"/><stop offset="50%" stop-color="#597e6e"/><stop offset="100%" stop-color="#355e55"/></linearGradient>
+      <linearGradient id="stemGreen" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#8ca890"/><stop offset="40%" stop-color="#527d6c"/><stop offset="100%" stop-color="#31534c"/></linearGradient>
+      <symbol id="rose-head" viewBox="0 0 300 290">
+        <g stroke="#c2537b" stroke-width="1.25" stroke-linejoin="round">
+          <!-- Outer framing petals -->
+          <path d="M151 252 C112 263 56 233 46 191 C31 152 55 119 86 119 C60 93 75 55 113 53 C131 23 173 24 193 51 C227 43 258 72 243 109 C277 132 271 174 240 192 C232 227 186 257 151 252 Z" fill="url(#petalPink)" />
+          <path d="M94 209 C55 198 38 160 61 123 C73 104 91 99 105 108 C82 75 99 47 122 46 C101 89 118 110 136 130 Z" fill="url(#petalDeep)" />
+          <path d="M202 219 C252 194 264 157 244 122 C233 103 213 98 195 107 C224 71 202 42 183 46 C193 91 175 116 158 138 Z" fill="url(#petalPink)" />
+          <path d="M76 128 C74 78 109 50 150 65 C167 34 213 45 226 83 C240 125 207 159 176 176 L122 177 Z" fill="url(#petalSoft)" />
+          <!-- middle petals fold inward -->
+          <path d="M84 133 C89 97 120 91 148 119 C161 80 209 77 224 121 C235 151 220 184 192 202 C179 228 132 239 108 210 C88 189 77 159 84 133 Z" fill="url(#petalDeep)" />
+          <path d="M85 132 C97 108 116 104 146 131 C135 145 135 160 150 174 C129 192 100 179 85 132 Z" fill="url(#petalPink)" />
+          <path d="M218 129 C200 101 172 110 158 135 C177 151 178 168 166 183 C190 194 213 174 218 129 Z" fill="url(#petalSoft)" />
+          <!-- central blooming curl -->
+          <path d="M123 123 C129 101 160 94 181 109 C202 124 192 155 177 169 C162 190 127 187 116 163 C109 146 116 133 123 123 Z" fill="url(#petalPink)" />
+          <path d="M129 144 C128 123 155 114 170 129 C187 150 167 166 149 158 C137 153 142 140 153 141" fill="none" stroke="#aa315e" stroke-width="7" stroke-linecap="round" />
+          <path d="M138 144 C145 121 166 133 158 146" fill="none" stroke="#ffdee8" stroke-width="7" stroke-linecap="round" />
+          <!-- upward curled rim highlights -->
+          <path d="M82 137 C98 99 121 96 146 124" fill="none" stroke="#ffe3ed" stroke-width="3" opacity=".65" />
+          <path d="M217 132 C198 101 174 108 160 133" fill="none" stroke="#ffe3ed" stroke-width="3" opacity=".72" />
+          <path d="M108 210 C137 230 170 228 194 210" fill="none" stroke="#b93f6b" stroke-width="2" opacity=".43"/>
+          <path d="M63 185 C79 222 107 239 146 241" fill="none" stroke="#fff0f4" stroke-width="2" opacity=".45" />
+        </g>
+      </symbol>
+      <symbol id="long-rose" viewBox="0 0 300 550">
+        <g>
+          <path d="M151 225 C144 294 157 376 132 542" fill="none" stroke="url(#stemGreen)" stroke-width="8" stroke-linecap="round" />
+          <path d="M148 325 C116 290 72 294 47 308 C65 338 104 360 148 345" fill="url(#leafGreen)" />
+          <path d="M149 347 C109 340 81 320 47 308" fill="none" stroke="#d4dec0" stroke-width="1.5" opacity=".8" />
+          <path d="M149 401 C178 358 213 361 250 375 C226 410 189 436 145 420" fill="url(#leafGreen)" />
+          <path d="M149 413 C182 401 213 389 249 375" fill="none" stroke="#cfdec5" stroke-width="1.5" opacity=".7" />
+          <path d="M142 485 C118 456 98 455 72 461 C83 487 108 503 139 500" fill="url(#leafGreen)"/>
+          <path d="M149 244 C139 231 127 216 112 203 C127 200 147 205 153 220 C164 201 182 199 197 203 C182 214 162 240 149 244" fill="#507b67"/>
+        </g>
+        <use href="#rose-head" x="0" y="0" width="300" height="285" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="progress" id="progress"></div>
+  <canvas id="petal-canvas" aria-hidden="true"></canvas>
+
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a class="brand" href="#trang-chu" aria-label="Về đầu trang">
+        <span class="brand-mark"><svg viewBox="0 0 300 290" aria-hidden="true"><use href="#rose-head" /></svg></span>
+        for you, with love.
+      </a>
+      <div class="nav-right">
+        <nav class="nav-links" aria-label="Điều hướng chính">
+          <a href="#loi-thuong">Lời thương</a>
+          <a href="#dieu-uoc">Điều ước</a>
+          <a href="#buc-thu">Bức thư nhỏ</a>
+        </nav>
+        <a href="#ket" class="nav-date">20 • 10 • 2026</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="trang-chu" aria-labelledby="hero-title">
+      <div class="hero-circle" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="hero-content">
+          <div class="hero-overline"><i></i> Happy Vietnamese Women's Day</div>
+          <h1 id="hero-title"><span class="hero-small">Gửi đến những</span> người phụ nữ <span class="hero-pink">tuyệt vời nhất.</span></h1>
+          <p class="hero-desc">Có những bông hoa chỉ nở một mùa. Nhưng sự dịu dàng, mạnh mẽ và ánh sáng nơi bạn khiến cuộc đời đẹp hơn qua từng ngày.</p>
+          <div class="hero-actions">
+            <a class="button" href="#loi-thuong">Nhận một chút yêu thương <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" /></svg></a>
+            <span class="hero-note">with all my heart ♡</span>
+          </div>
+        </div>
+        <div class="hero-illustration" id="hero-illustration" aria-label="Bó hoa hồng màu hồng">
+          <div class="hero-flower-halo"></div>
+          <svg class="hero-bouquet" viewBox="0 0 640 695" role="img" aria-label="Bó hoa hồng màu hồng nở rộ" xmlns="http://www.w3.org/2000/svg">
+            <g opacity=".45"><ellipse cx="315" cy="626" rx="135" ry="22" fill="#a45171" opacity=".12"/></g>
+            <g transform="rotate(-20 215 410)"><use href="#long-rose" x="27" y="140" width="315" height="555" /></g>
+            <g transform="rotate(18 400 414)"><use href="#long-rose" x="277" y="115" width="300" height="550" /></g>
+            <g transform="rotate(-3 335 342)"><use href="#long-rose" x="165" y="21" width="350" height="630" /></g>
+            <g opacity=".76"><path d="M303 602 Q352 611 388 602" fill="none" stroke="#f7d8df" stroke-width="12" stroke-linecap="round"/><path d="M349 610 C347 628 324 650 299 642 C288 634 309 616 349 610 C370 647 391 653 399 638 C404 620 377 610 349 610Z" fill="#eac0cf"/><path d="M351 610 Q354 640 344 666" fill="none" stroke="#dca2b8" stroke-width="7" stroke-linecap="round" /></g>
+          </svg>
+          <div class="hero-art-label">a little bouquet for you</div>
+          <div class="hero-seal"><div><strong>20/10</strong><span>chỉ dành cho bạn</span></div></div>
+          <span class="hero-sparkle hero-sparkle--one" aria-hidden="true">✧</span>
+          <span class="hero-sparkle hero-sparkle--two" aria-hidden="true">✦</span>
+        </div>
+      </div>
+      <div class="hero-scroll" aria-hidden="true"><span class="hero-scroll-line"></span> Cuộn để khám phá</div>
+    </section>
+
+    <div class="marquee" aria-label="Chúc mừng ngày Phụ nữ Việt Nam">
+      <div class="marquee-track" aria-hidden="true">
+        <div class="marquee-content"><span>Happy Women's Day</span><b>✳</b><span>Chúc mừng ngày 20/10</span><b>✳</b><span>You deserve all the love</span><b>✳</b><span>Bloom in your own way</span><b>✳</b></div>
+        <div class="marquee-content"><span>Happy Women's Day</span><b>✳</b><span>Chúc mừng ngày 20/10</span><b>✳</b><span>You deserve all the love</span><b>✳</b><span>Bloom in your own way</span><b>✳</b></div>
+      </div>
+    </div>
+
+    <section class="intro" id="loi-thuong" aria-labelledby="intro-title">
+      <div class="section-wrap intro-grid">
+        <div class="intro-art" data-reveal>
+          <span class="intro-art-tag">A rose for you<span>because you're special</span></span>
+          <svg class="intro-rose" viewBox="0 0 300 550" role="img" aria-label="Một đóa hoa hồng màu hồng"><use href="#long-rose" /></svg>
+        </div>
+        <div class="intro-copy">
+          <p class="eyebrow" data-reveal>Một lời nhắn từ trái tim</p>
+          <h2 class="section-heading" id="intro-title" data-reveal="delay-1">Bạn không cần phải <span class="emphasis">hoàn hảo</span> để luôn thật <span class="emphasis">đáng yêu.</span></h2>
+          <p class="body-copy" data-reveal="delay-2">Cảm ơn bạn vì đã luôn cố gắng, ngay cả trong những ngày chẳng dễ dàng. Cảm ơn những nụ cười, sự quan tâm và cả những điều thầm lặng mà đôi khi thế giới quên nói lời trân trọng.</p>
+          <p class="body-copy" data-reveal="delay-2">Ngày hôm nay, mong bạn dành cho chính mình một chút yêu chiều. Bạn xứng đáng được lắng nghe, được nâng niu và được hạnh phúc theo cách riêng của mình.</p>
+          <div class="intro-quote" data-reveal="delay-3">“Mong mỗi ngày của bạn đều có một lý do để mỉm cười, và mỗi giấc mơ đều có cơ hội nở hoa.”</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wishes" id="dieu-uoc" aria-labelledby="wishes-title">
+      <div class="section-wrap">
+        <div class="wishes-head">
+          <p class="eyebrow" data-reveal>Gói trong một bó hoa hồng</p>
+          <h2 class="section-heading" id="wishes-title" data-reveal="delay-1">Ba điều nhỏ, <span class="emphasis">thương thật nhiều.</span></h2>
+          <p class="body-copy" data-reveal="delay-2">Nếu mỗi cánh hoa có thể mang theo một lời chúc, mình muốn dành cho bạn những điều đẹp đẽ này.</p>
+        </div>
+        <div class="wish-cards">
+          <article class="wish-card" data-number="01" data-reveal>
+            <div class="wish-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21c5 0 5-5 10-5s5 5 12 1M5 26c5 0 5-5 10-5s5 5 12 1"/><path d="M16 4v7m-3-3 3 3 3-3"/></svg></div>
+            <h3>Bình yên trong tim</h3>
+            <p>Chúc bạn đủ an nhiên để bước qua những bộn bề, đủ dịu dàng để ôm lấy chính mình sau một ngày dài.</p>
+            <span class="tiny-bloom">✳</span>
+          </article>
+          <article class="wish-card" data-number="02" data-reveal="delay-1">
+            <div class="wish-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 2v5M16 25v5M2 16h5M25 16h5M6 6l4 4m12 12 4 4m0-20-4 4M10 22l-4 4"/><circle cx="16" cy="16" r="7"/></svg></div>
+            <h3>Rực rỡ theo cách riêng</h3>
+            <p>Chúc những dự định của bạn dần thành hiện thực. Cứ tự tin tỏa sáng, bởi chính bạn đã là một điều đặc biệt.</p>
+            <span class="tiny-bloom">✳</span>
+          </article>
+          <article class="wish-card" data-number="03" data-reveal="delay-2">
+            <div class="wish-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 28S4 21 4 12a7 7 0 0 1 12-5 7 7 0 0 1 12 5c0 9-12 16-12 16Z"/><path d="M12 14h8"/></svg></div>
+            <h3>Hạnh phúc thật lâu</h3>
+            <p>Chúc bạn gặp những người chân thành, nhận về thật nhiều yêu thương và luôn có nơi để trở về, là chính mình.</p>
+            <span class="tiny-bloom">✳</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="letter-section" id="buc-thu" aria-labelledby="letter-title">
+      <div class="section-wrap letter-grid">
+        <div class="letter-copy">
+          <p class="eyebrow" data-reveal>Dành riêng cho bạn</p>
+          <h2 class="section-heading" id="letter-title" data-reveal="delay-1">Có một <span class="emphasis">bức thư nhỏ</span> đang đợi được mở...</h2>
+          <p class="body-copy" data-reveal="delay-2">Không phải món quà nào cũng cần gói bằng giấy thật đẹp. Có những lời chúc, chỉ cần được gửi đi bằng sự chân thành, đã đủ để ngày hôm nay thêm ấm áp.</p>
+          <button class="button" id="open-letter" type="button" aria-expanded="false" aria-controls="letter-paper" data-reveal="delay-3">Mở bức thư yêu thương <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" /></svg></button>
+          <div class="letter-hint" data-reveal="delay-3"><span>↗</span> Hoặc chạm vào phong thư</div>
+        </div>
+        <div class="letter-stage" id="letter-stage" role="button" tabindex="0" aria-label="Mở hoặc đóng bức thư chúc mừng 20 tháng 10" aria-expanded="false" data-reveal="delay-2">
+          <div class="envelope">
+            <div class="envelope-back"></div>
+            <div class="letter-sheet" id="letter-paper">
+              <div class="mini-date">20 THÁNG 10 · 2026</div>
+              <h3>Gửi bạn, đóa hoa đặc biệt!</h3>
+              <p>Chúc bạn không chỉ xinh đẹp trong ngày 20/10, mà còn luôn được yêu thương trong tất cả những ngày còn lại.</p>
+              <p>Mong bạn có sức khỏe để theo đuổi ước mơ, có bình yên để tận hưởng hiện tại và có đủ dũng cảm để chọn điều khiến trái tim mình hạnh phúc.</p>
+              <div class="letter-sign">Thương mến, từ trái tim ♡</div>
+            </div>
+            <div class="envelope-front"></div>
+            <div class="envelope-flap"></div>
+            <div class="wax-seal">♡</div>
+          </div>
+          <div class="letter-rose" aria-hidden="true">✧</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="finale" id="ket" aria-labelledby="final-title">
+      <svg class="finale-rose finale-rose--left" viewBox="0 0 300 550" aria-hidden="true"><use href="#long-rose"/></svg>
+      <svg class="finale-rose finale-rose--right" viewBox="0 0 300 550" aria-hidden="true"><use href="#long-rose"/></svg>
+      <span class="floaty floaty--a"></span><span class="floaty floaty--b"></span><span class="floaty floaty--c"></span>
+      <div class="section-wrap">
+        <div class="end-icon" data-reveal>✦ &nbsp; ♡ &nbsp; ✦</div>
+        <p class="eyebrow" data-reveal>20 tháng 10 · Ngày Phụ nữ Việt Nam</p>
+        <h2 id="final-title" data-reveal="delay-1">Chúc bạn một đời <em>rạng rỡ,</em><br />một đời <em>được yêu thương.</em></h2>
+        <div class="finale-ornament" data-reveal="delay-2"></div>
+        <p data-reveal="delay-2">Dù hôm nay hay bất cứ ngày nào, mong bạn luôn nhớ rằng: bạn quan trọng, bạn xứng đáng và bạn là phiên bản duy nhất không thể thay thế. Chúc mừng ngày 20/10! 🌷</p>
+        <button type="button" class="button button--light" id="bloom-button" data-reveal="delay-3">Nhận một cơn mưa hoa hồng <span aria-hidden="true">✿</span></button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot"><strong>with love, always ♡</strong><span>Một món quà nhỏ được làm bằng tất cả sự trân trọng · 20/10/2026</span><a href="#trang-chu">Về đầu trang ↑</a></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite">Mong mọi điều dịu dàng sẽ đến bên bạn ♡</div>
+
+  <script>
+    (() => {
+      'use strict';
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Scroll progress & sections gently appearing into view.
+      const progress = document.getElementById('progress');
+      let scrolling = false;
+      function updateProgress() {
+        const max = Math.max(document.documentElement.scrollHeight - innerHeight, 1);
+        progress.style.width = ((scrollY / max) * 100).toFixed(2) + '%';
+        scrolling = false;
+      }
+      window.addEventListener('scroll', () => {
+        if (!scrolling) { scrolling = true; requestAnimationFrame(updateProgress); }
+      }, { passive: true });
+      window.addEventListener('resize', updateProgress, { passive: true });
+      updateProgress();
+
+      const revealElements = document.querySelectorAll('[data-reveal]');
+      if ('IntersectionObserver' in window && !prefersReducedMotion) {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: .13, rootMargin: '0px 0px -32px 0px' });
+        revealElements.forEach(el => observer.observe(el));
+      } else {
+        revealElements.forEach(el => el.classList.add('is-visible'));
+      }
+
+      // Tiny mouse-responsive parallax on the illustrated bouquet.
+      const hero = document.querySelector('.hero');
+      const heroIllustration = document.getElementById('hero-illustration');
+      if (!prefersReducedMotion && window.matchMedia('(pointer:fine)').matches) {
+        hero.addEventListener('pointermove', e => {
+          const r = hero.getBoundingClientRect();
+          const x = ((e.clientX - r.left) / r.width - .5) * 16;
+          const y = ((e.clientY - r.top) / r.height - .5) * 12;
+          heroIllustration.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        }, { passive: true });
+        hero.addEventListener('pointerleave', () => { heroIllustration.style.transform = ''; });
+      }
+
+      // Flying rose petals: HTML canvas is very light, including on mobile.
+      const canvas = document.getElementById('petal-canvas');
+      const ctx = canvas.getContext('2d', { alpha: true });
+      let petals = [], bursts = [], width = innerWidth, height = innerHeight, pixelRatio = 1;
+      const random = (min, max) => Math.random() * (max - min) + min;
+      const palette = [
+        ['#f8a7c0','#d75e89'], ['#ffcfdb','#f29ab8'],
+        ['#f3b0c9','#c94b79'], ['#ffe1e9','#f3aec7']
+      ];
+      function resizeCanvas() {
+        if (!ctx) return;
+        width = window.innerWidth; height = window.innerHeight;
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(width * pixelRatio);
+        canvas.height = Math.round(height * pixelRatio);
+        canvas.style.width = width + 'px'; canvas.style.height = height + 'px';
+        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      }
+      function newPetal(initial = false) {
+        const size = random(7, 17);
+        return {
+          x: random(0, width), y: initial ? random(-30, height) : random(-100, -15),
+          baseX: 0, size, speed: random(.42, 1.22),
+          sway: random(.3, 1.2), phase: random(0, Math.PI * 2),
+          rot: random(0, Math.PI * 2), spin: random(-.012, .012),
+          opacity: random(.28, .67), colors: palette[Math.floor(Math.random() * palette.length)]
+        };
+      }
+      function drawPetal(p, time) {
+        ctx.save(); ctx.globalAlpha = p.opacity;
+        ctx.translate(p.x + Math.sin(time * .001 * p.sway + p.phase) * 23, p.y);
+        ctx.rotate(p.rot);
+        // Scale into 3D-like rotating petal shape.
+        ctx.scale(.65 + Math.cos(time*.00085 + p.phase) * .29, 1);
+        const s = p.size;
+        const grad = ctx.createLinearGradient(-s, -s, s, s);
+        grad.addColorStop(0, p.colors[0]); grad.addColorStop(1, p.colors[1]);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(0, -s*.85);
+        ctx.bezierCurveTo(s*.85, -s*1.2, s*1.25, s*.1, s*.23, s*.88);
+        ctx.bezierCurveTo(-s*.17, s*1.14, -s*.93, s*.38, -s*.75, -s*.2);
+        ctx.bezierCurveTo(-s*.55, -s*.75, -s*.12, -s*.92, 0, -s*.85);
+        ctx.fill();
+        ctx.restore();
+      }
+      function sprinkle(x, y, count = 45) {
+        if (!ctx || prefersReducedMotion) return;
+        for (let i = 0; i < count; i++) {
+          const angle = random(-Math.PI * .95, -Math.PI * .05);
+          const force = random(2.2, 8.8);
+          const p = newPetal();
+          Object.assign(p, { x: x + random(-70, 70), y: y + random(-25, 25),
+            vx: Math.cos(angle)*force + random(-2,2), vy: Math.sin(angle)*force,
+            gravity: random(.035,.085), opacity: random(.6,.95), size: random(8,21), life: 0 });
+          bursts.push(p);
+        }
+      }
+      function frame(time) {
+        ctx.clearRect(0, 0, width, height);
+        for (let i = 0; i < petals.length; i++) {
+          let p = petals[i]; p.y += p.speed; p.x += Math.sin(time*.0003 + p.phase)*.23; p.rot += p.spin;
+          if (p.y > height + 35 || p.x > width + 60 || p.x < -60) petals[i] = p = newPetal();
+          drawPetal(p, time);
+        }
+        for (let i = bursts.length - 1; i >= 0; i--) {
+          const p = bursts[i]; p.x += p.vx; p.y += p.vy;
+          p.vx *= .995; p.vy += p.gravity; p.rot += p.spin*3; p.life++;
+          if (p.life > 95) p.opacity *= .975;
+          if (p.y > height + 50 || p.opacity < .02 || p.life > 250) bursts.splice(i,1);
+          else drawPetal(p, time);
+        }
+        if (!document.hidden) requestAnimationFrame(frame);
+        else petalLoopRunning = false;
+      }
+      let petalLoopRunning = false;
+      function runCanvas() { if (!ctx || prefersReducedMotion || petalLoopRunning) return; petalLoopRunning = true; requestAnimationFrame(frame); }
+      if (ctx && !prefersReducedMotion) {
+        resizeCanvas();
+        petals = Array.from({ length: width < 600 ? 20 : 37 }, () => newPetal(true));
+        runCanvas();
+        window.addEventListener('resize', resizeCanvas, { passive:true });
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) runCanvas(); });
+      }
+
+      // The letter is keyboard-accessible and opens with a rose-petal flourish.
+      const letterStage = document.getElementById('letter-stage');
+      const openLetterButton = document.getElementById('open-letter');
+      function toggleLetter() {
+        const isOpen = letterStage.classList.toggle('is-open');
+        letterStage.setAttribute('aria-expanded', String(isOpen));
+        openLetterButton.setAttribute('aria-expanded', String(isOpen));
+        openLetterButton.firstChild.textContent = isOpen ? 'Gấp thư lại ' : 'Mở bức thư yêu thương ';
+        if (isOpen) {
+          const r = letterStage.getBoundingClientRect();
+          sprinkle(r.left + r.width / 2, r.top + r.height*.55, 34);
+        }
+      }
+      openLetterButton.addEventListener('click', toggleLetter);
+      letterStage.addEventListener('click', toggleLetter);
+      letterStage.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleLetter(); } });
+
+      // One more little surprise at the bottom.
+      const bloomButton = document.getElementById('bloom-button');
+      const toast = document.getElementById('toast');
+      let toastTimer;
+      bloomButton.addEventListener('click', () => {
+        sprinkle(width*.3, height*.72, 65);
+        sprinkle(width*.7, height*.72, 65);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+      });
+    })();
+  </script>
+</body>
+</html>
